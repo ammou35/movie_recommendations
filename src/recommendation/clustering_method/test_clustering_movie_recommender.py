@@ -78,6 +78,38 @@ class TestClusterWeightedRecommender(unittest.TestCase):
             ["movie_id", "title", "cluster_label", "distance_to_cluster_centroid"],
         )
 
+    def test_sample_scenarios_with_prints(self) -> None:
+        # Print-friendly scenarios so we can eyeball inputs/outputs of the recommender.
+        scenarios = {
+            "single_cluster_like": ([266316], 5),
+            "two_clusters_even": ([266316, 739864], 6),
+            "three_clusters_mix": ([266316, 739864, 4213], 7),
+            "multi_like_same_cluster": ([266316, 195877], 5),
+        }
+
+        for name, (liked_ids, n_reco) in scenarios.items():
+            with self.subTest(name=name):
+                print(f"\n--- Scenario: {name} ---")
+                print(f"Input liked movie IDs: {liked_ids}")
+                recommendations = self.recommender.recommend(
+                    liked_ids, n_recommendations=n_reco
+                )
+                print("Output recommendations:")
+                printable = recommendations.to_string(index=False)
+                safe_printable = printable.encode("ascii", errors="backslashreplace").decode("ascii")
+                print(safe_printable)
+
+                recommended_ids = set(recommendations["movie_id"].tolist())
+                liked_clusters = (
+                    self.assignments[self.assignments["id"].isin(liked_ids)][
+                        "cluster_label"
+                    ].nunique()
+                )
+                self.assertTrue(set(liked_ids).isdisjoint(recommended_ids))
+                max_expected = n_reco + liked_clusters - 1  # ceilings can over-allocate by up to k-1
+                self.assertLessEqual(len(recommendations), max_expected)
+                self.assertFalse(recommendations.empty)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
