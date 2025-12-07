@@ -244,38 +244,38 @@ class MovieDataLoader:
         print("MOVIE DATASET STATISTICS")
         print("="*80)
         
-        print(f"\nBasic Information:")
+        print(f"Basic Information:")
         print(f"  Total movies: {stats['total_movies']:,}")
         print(f"  Total columns: {stats['total_columns']}")
         print(f"  Date range: {stats['date_range'][0]} to {stats['date_range'][1]}")
         
-        print(f"\nScore Statistics:")
+        print(f"Score Statistics:")
         print(f"  Mean: {stats['score_mean']:.2f}")
         print(f"  Std Dev: {stats['score_std']:.2f}")
         print(f"  Range: {stats['score_min']:.1f} - {stats['score_max']:.1f}")
         
-        print(f"\nMissing Data:")
+        print(f"Missing Data:")
         print(f"  Missing budget: {stats['missing_budget']}")
         print(f"  Missing revenue: {stats['missing_revenue']}")
         
         if detailed:
-            print(f"\nDetailed Analysis:")
+            print(f"Detailed Analysis:")
             print(f"  Duplicate titles: {stats['duplicate_titles']} ({stats['duplicate_title_rows']} rows)")
             print(f"  Budget = 0: {stats['budget_zero']}")
             print(f"  Revenue = 0: {stats['revenue_zero']}")
             print(f"  Score = 0: {stats['score_zero']}")
             print(f"  Rows with any NaN: {stats['rows_with_any_nan']}")
             
-            print(f"\nData Quality:")
+            print(f"Data Quality:")
             print(f"  Clean movies (no zeros, no NaN): {stats['clean_movies']} ({stats['clean_percentage']:.1f}%)")
             
             if 'top_5_genres' in stats:
-                print(f"\nTop 5 Genres:")
+                print(f"Top 5 Genres:")
                 for genre, count in stats['top_5_genres'].items():
                     print(f"  {genre}: {count}")
             
             if 'top_3_languages' in stats:
-                print(f"\nTop 3 Languages:")
+                print(f"Top 3 Languages:")
                 for lang, count in stats['top_3_languages'].items():
                     print(f"  {lang}: {count}")
         
