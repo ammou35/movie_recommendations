@@ -33,7 +33,7 @@ def main():
     print("="*80)
     
     # ========== STEP 1: DATA PREPARATION ==========
-    print("\n[STEP 1/4] Loading and preparing data...")
+    print("[STEP 1/4] Loading and preparing data...")
     loader = MovieDataLoader()
     df = loader.get_supervised_data()
     
@@ -45,7 +45,7 @@ def main():
     print(f" Data ready: {len(df):,} movies, {len(engineer.feature_names)} features")
     
     # ========== STEP 2: TRAIN & COMPARE MODELS ==========
-    print("\n[STEP 2/4] Training and comparing models...")
+    print("[STEP 2/4] Training and comparing models...")
     
     models_to_test = {
         'Linear Regression': 'linear',
@@ -65,19 +65,19 @@ def main():
         print(f" R²={metrics['test_r2']:.4f}")
     
     # ========== STEP 3: SELECT BEST MODEL ==========
-    print("\n[STEP 3/5] Selecting best model...")
+    print("[STEP 3/5] Selecting best model...")
     
     # Find best by R² score
     best_model_name = max(results.items(), key=lambda x: x[1]['test_r2'])[0]
     best_model_type = models_to_test[best_model_name]
     best_metrics = results[best_model_name]
     
-    print(f"\n BEST MODEL: {best_model_name}")
+    print(f" BEST MODEL: {best_model_name}")
     print(f"   Initial R²: {best_metrics['test_r2']:.4f}")
     print(f"   Initial MAE: {best_metrics['test_mae']:.4f}")
     
     # ========== STEP 4: OPTIMIZE HYPERPARAMETERS ==========
-    print(f"\n[STEP 4/5] Optimizing {best_model_name} hyperparameters...")
+    print(f"[STEP 4/5] Optimizing {best_model_name} hyperparameters...")
         
     # Optimize the best model
     final_model, optimized_metrics, best_params = optimize_model(
@@ -93,9 +93,12 @@ def main():
     within_10 = (errors <= 10).sum() / len(errors) * 100
     
     # ========== STEP 5: SAVE FINAL MODEL ==========
-    print(f"\n[STEP 5/5] Saving final optimized model...")
+    print(f"[STEP 5/5] Saving final optimized model...")
     
-    final_path = 'src/models/saved_models/quality_predictor_best.pkl'
+    final_path = os.path.join(os.path.dirname(__file__), '..', 'saved_models', 'quality_predictor_best.pkl')
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(final_path), exist_ok=True)
     
     # Save with metadata
     model_data = {
@@ -116,6 +119,17 @@ def main():
     joblib.dump(model_data, final_path)
     
     print(f" Model saved to: {final_path}")
+    
+    print("="*80)
+    print("TRAINING COMPLETE - MOVIE SCORE PREDICTOR")
+    print("="*80)
+    print(f"Best Model: {best_model_name} (Optimized)")
+    print(f"  R² Score: {optimized_metrics.get('r2', best_metrics['test_r2']):.4f}")
+    print(f"  RMSE: {optimized_metrics.get('rmse', best_metrics['test_rmse']):.2f} starts")
+    print(f"  MAE: {optimized_metrics.get('mae', best_metrics['test_mae']):.2f} starts")
+    print(f"  Accuracy (±10 points): {within_10:.1f}%")
+    print(f"Model saved to: {final_path}")
+    print(f"The model predicts the IMDb Score (0-10) based on:")
     
 
 
