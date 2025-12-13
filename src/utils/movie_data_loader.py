@@ -113,9 +113,6 @@ class MovieDataLoader:
         """
         df = self.get_clean_data()
         
-        if 'date_x' in df.columns:
-            df['year'] = pd.to_datetime(df['date_x'], format='%m/%d/%Y', errors='coerce').dt.year
-        
         feature_cols = ['year', 'score', 'budget_x', 'revenue']
         clustering_df = df[feature_cols].copy()
         
@@ -133,9 +130,6 @@ class MovieDataLoader:
             DataFrame with embedding features
         """
         df = self.get_clean_data()
-        
-        if 'date_x' in df.columns:
-            df['year'] = pd.to_datetime(df['date_x'], format='%m/%d/%Y', errors='coerce').dt.year
         
         feature_cols = ['year', 'score', 'budget_x', 'revenue']
         clustering_df = df[feature_cols].copy()
@@ -182,10 +176,8 @@ class MovieDataLoader:
             'score_max': df['score'].max(),
             'missing_budget': df['budget_x'].isna().sum(),
             'missing_revenue': df['revenue'].isna().sum(),
-            'date_range': (
-                df['date_x'].min().strftime('%Y-%m-%d') if pd.notna(df['date_x'].min()) else 'N/A',
-                df['date_x'].max().strftime('%Y-%m-%d') if pd.notna(df['date_x'].max()) else 'N/A'
-            )
+            'year_min': int(df['year'].min()) if 'year' in df.columns and pd.notna(df['year'].min()) else 'N/A',
+            'year_max': int(df['year'].max()) if 'year' in df.columns and pd.notna(df['year'].max()) else 'N/A'
         }
         
         if detailed:
@@ -247,7 +239,7 @@ class MovieDataLoader:
         print(f"Basic Information:")
         print(f"  Total movies: {stats['total_movies']:,}")
         print(f"  Total columns: {stats['total_columns']}")
-        print(f"  Date range: {stats['date_range'][0]} to {stats['date_range'][1]}")
+        print(f"  Year range: {stats['year_min']} to {stats['year_max']}")
         
         print(f"Score Statistics:")
         print(f"  Mean: {stats['score_mean']:.2f}")
@@ -307,9 +299,19 @@ class MovieDataLoader:
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
         
-        # Parse dates
+        # Parse dates and extract year
         if 'date_x' in df.columns:
+            df['date_x'] = df['date_x'].astype(str).str.strip()
             df['date_x'] = pd.to_datetime(df['date_x'], format='%m/%d/%Y', errors='coerce')
+            
+            idx = df.columns.get_loc("date_x")
+            df.insert(idx, "year", df['date_x'].dt.year)
+        
+        # Drop unused columns 
+        # date_x: we use year instead
+        # status: mostly 'Released', not useful
+        # orig_title: we use 'names' (English title)
+        df = df.drop(columns=["date_x", "status", "orig_title"], errors="ignore")
         
         # Handle missing values in numeric columns
         for col in ['budget_x', 'revenue']:
