@@ -114,11 +114,11 @@ python src/models/supervised/main.py
 
 This will:
 
-1. Load and prepare data (9,660 movies, 31 features)
+1. Load and prepare data
 2. Train 3 models (Linear, Ridge, Random Forest)
 3. Compare performance
 4. Optimize best model with GridSearchCV
-5. Save final model to `src/models/saved_models/quality_predictor_best.pkl`
+5. Save final model to `src/models/saved_models/supervised_model.pkl`
 
 ### Use Trained Model
 
@@ -126,7 +126,7 @@ This will:
 from models.supervised import QualityPredictor
 
 # Load model
-predictor = QualityPredictor('src/models/saved_models/quality_predictor_best.pkl')
+predictor = QualityPredictor('src/models/saved_models/supervised_model.pkl')
 
 # Make prediction
 score = predictor.predict_single(movie_features)

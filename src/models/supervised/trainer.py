@@ -32,7 +32,6 @@ class QualityModelTrainer:
         self.metrics = {}
         self.feature_importance = None
         
-        # Initialize model based on type
         if model_type == 'linear':
             self.model = LinearRegression()
         elif model_type == 'ridge':
@@ -69,12 +68,10 @@ class QualityModelTrainer:
         Returns:
             Tuple of (X_train, X_val, X_test, y_train, y_val, y_test)
         """
-        # First split: separate test set
         X_temp, X_test, y_temp, y_test = train_test_split(
             X, y, test_size=test_size, random_state=random_state
         )
         
-        # Second split: separate validation from training
         val_ratio = val_size / (1 - test_size)
         X_train, X_val, y_train, y_val = train_test_split(
             X_temp, y_temp, test_size=val_ratio, random_state=random_state
@@ -92,7 +89,6 @@ class QualityModelTrainer:
         """
         self.model.fit(X_train, y_train)
         
-        # Extract feature importance for tree-based models
         if self.model_type == 'random_forest':
             self.feature_importance = self.model.feature_importances_
     
@@ -113,10 +109,8 @@ class QualityModelTrainer:
         Returns:
             Dictionary of evaluation metrics
         """
-        # Make predictions
         y_pred = self.model.predict(X)
         
-        # Calculate metrics
         rmse = np.sqrt(mean_squared_error(y, y_pred))
         mae = mean_absolute_error(y, y_pred)
         r2 = r2_score(y, y_pred)
@@ -153,10 +147,8 @@ class QualityModelTrainer:
         Args:
             filepath: Path to save the model
         """
-        # Create directory if it doesn't exist
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
         
-        # Save model and metrics
         model_data = {
             'model': self.model,
             'model_type': self.model_type,
@@ -219,15 +211,12 @@ class QualityModelTrainer:
         Returns:
             Dictionary of all metrics
         """
-        # Split data
         X_train, X_val, X_test, y_train, y_val, y_test = self.split_data(
             X, y, test_size, val_size
         )
         
-        # Train model
         self.train(X_train, y_train)
         
-        # Evaluate on all sets
         self.evaluate(X_train, y_train, 'train')
         self.evaluate(X_val, y_val, 'val')
         self.evaluate(X_test, y_test, 'test')

@@ -47,7 +47,6 @@ class QualityPredictor:
         
         predictions = self.model.predict(X)
         
-        # Clip predictions to valid score range (0-100)
         predictions = np.clip(predictions, 0, 100)
         
         return predictions
