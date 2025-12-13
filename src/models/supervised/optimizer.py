@@ -21,7 +21,7 @@ class ModelOptimizer:
     PARAM_GRIDS = {
         'random_forest': {
             'n_estimators': [100, 200, 300],
-            'max_depth': [10, 20, 30, None],
+            'max_depth': [10, 20, 30],
             'min_samples_split': [2, 5, 10],
             'min_samples_leaf': [1, 2, 4]
         },
@@ -72,17 +72,14 @@ class ModelOptimizer:
         Returns:
             Tuple of (optimized_model, metrics, best_params)
         """
-        # Check if there are parameters to optimize
         if not self.param_grid:
             base_model = self._get_base_model()
             
-            # Split and train
             X_train, X_test, y_train, y_test = train_test_split(
                 X, y, test_size=test_size, random_state=42
             )
             base_model.fit(X_train, y_train)
             
-            # Evaluate
             y_pred = base_model.predict(X_test)
             metrics = {
                 'r2': r2_score(y_test, y_pred),
@@ -92,12 +89,10 @@ class ModelOptimizer:
             
             return base_model, metrics, {}
         
-        # Split data
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=test_size, random_state=42
         )
         
-        # Grid search
         base_model = self._get_base_model()
         grid_search = GridSearchCV(
             base_model,
@@ -110,12 +105,10 @@ class ModelOptimizer:
         
         grid_search.fit(X_train, y_train)
         
-        # Get best model
         self.best_model = grid_search.best_estimator_
         self.best_params = grid_search.best_params_
         self.best_score = grid_search.best_score_
         
-        # Evaluate on test set
         y_pred = self.best_model.predict(X_test)
         
         metrics = {

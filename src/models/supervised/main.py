@@ -32,7 +32,6 @@ def main():
     print("SUPERVISED MODEL - COMPLETE PIPELINE")
     print("="*80)
     
-    # ========== STEP 1: DATA PREPARATION ==========
     print("[STEP 1/4] Loading and preparing data...")
     loader = MovieDataLoader()
     df = loader.get_supervised_data()
@@ -44,7 +43,6 @@ def main():
     
     print(f" Data ready: {len(df):,} movies, {len(engineer.feature_names)} features")
     
-    # ========== STEP 2: TRAIN & COMPARE MODELS ==========
     print("[STEP 2/4] Training and comparing models...")
     
     models_to_test = {
@@ -64,10 +62,8 @@ def main():
         trained_models[model_name] = trainer
         print(f" R²={metrics['test_r2']:.4f}")
     
-    # ========== STEP 3: SELECT BEST MODEL ==========
     print("[STEP 3/5] Selecting best model...")
     
-    # Find best by R² score
     best_model_name = max(results.items(), key=lambda x: x[1]['test_r2'])[0]
     best_model_type = models_to_test[best_model_name]
     best_metrics = results[best_model_name]
@@ -76,10 +72,8 @@ def main():
     print(f"   Initial R²: {best_metrics['test_r2']:.4f}")
     print(f"   Initial MAE: {best_metrics['test_mae']:.4f}")
     
-    # ========== STEP 4: OPTIMIZE HYPERPARAMETERS ==========
     print(f"[STEP 4/5] Optimizing {best_model_name} hyperparameters...")
         
-    # Optimize the best model
     final_model, optimized_metrics, best_params = optimize_model(
         model_type=best_model_type,
         X=X_scaled,
@@ -87,20 +81,16 @@ def main():
         initial_metrics=best_metrics
     )
     
-    # Calculate final accuracy
     predictions = final_model.predict(X_scaled)
     errors = np.abs(y.values - predictions)
     within_10 = (errors <= 10).sum() / len(errors) * 100
     
-    # ========== STEP 5: SAVE FINAL MODEL ==========
     print(f"[STEP 5/5] Saving final optimized model...")
     
-    final_path = os.path.join(os.path.dirname(__file__), '..', 'saved_models', 'quality_predictor_best.pkl')
+    final_path = os.path.join(os.path.dirname(__file__), '..', 'saved_models', 'supervised_model.pkl')
     
-    # Ensure directory exists
     os.makedirs(os.path.dirname(final_path), exist_ok=True)
     
-    # Save with metadata
     model_data = {
         'model': final_model,
         'model_type': best_model_name,
@@ -129,8 +119,6 @@ def main():
     print(f"  MAE: {optimized_metrics.get('mae', best_metrics['test_mae']):.2f} starts")
     print(f"  Accuracy (±10 points): {within_10:.1f}%")
     print(f"Model saved to: {final_path}")
-    print(f"The model predicts the IMDb Score (0-10) based on:")
-    
 
 
 if __name__ == "__main__":

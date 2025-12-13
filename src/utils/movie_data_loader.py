@@ -4,18 +4,15 @@ MovieDataLoader - Unified data loading for all models
 Provides clean, consistent data access for supervised, unsupervised, and deep learning models.
 """
 
-import os
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import List
 
 
-# Get project root directory (where src/ is located)
 def get_project_root():
     """Get the project root directory."""
     current_file = Path(__file__).resolve()
-    # Go up from src/utils/movie_data_loader.py to project root
     return current_file.parent.parent.parent
 
 
@@ -39,10 +36,8 @@ class MovieDataLoader:
             processed_data_path: Path to processed parquet file. If None, defaults to project_root/data/processed/clean_data.parquet.
             cache_processed: If True, processed data will be loaded/saved from/to processed_data_path.
         """
-        # Get project root
         self.project_root = get_project_root()
         
-        # Set paths relative to project root
         if data_path is None:
             self.data_path = self.project_root / "data" / "raw" / "imdb_movies.csv"
         else:
@@ -57,7 +52,6 @@ class MovieDataLoader:
         self.raw_data_path = str(self.data_path)
         self.processed_dir = self.processed_data_path.parent
         
-        # Ensure processed directory exists
         self.processed_dir.mkdir(parents=True, exist_ok=True)
         
         self._clean_data_cache = None
@@ -287,19 +281,15 @@ class MovieDataLoader:
         Returns:
             Cleaned DataFrame
         """
-        # Load CSV
         df = pd.read_csv(self.raw_data_path, na_values=["", " "], quotechar='"')
         
-        # Remove movies with missing scores
         df = df.dropna(subset=['score'])
         
-        # Convert numeric columns
         numeric_cols = ['score', 'budget_x', 'revenue']
         for col in numeric_cols:
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
         
-        # Parse dates and extract year
         if 'date_x' in df.columns:
             df['date_x'] = df['date_x'].astype(str).str.strip()
             df['date_x'] = pd.to_datetime(df['date_x'], format='%m/%d/%Y', errors='coerce')
@@ -307,20 +297,14 @@ class MovieDataLoader:
             idx = df.columns.get_loc("date_x")
             df.insert(idx, "year", df['date_x'].dt.year)
         
-        # Drop unused columns 
-        # date_x: we use year instead
-        # status: mostly 'Released', not useful
-        # orig_title: we use 'names' (English title)
         df = df.drop(columns=["date_x", "status", "orig_title"], errors="ignore")
         
-        # Handle missing values in numeric columns
         for col in ['budget_x', 'revenue']:
             if col in df.columns:
                 median_val = df[col].median()
                 df[col] = df[col].fillna(median_val)
         
-        # Handle missing values in categorical columns
-        categorical_cols = ['genre', 'orig_lang', 'country', 'status', 'overview', 'crew']
+        categorical_cols = ['genre', 'orig_lang', 'country', 'overview', 'crew']
         for col in categorical_cols:
             if col in df.columns:
                 df[col] = df[col].fillna('Unknown')
