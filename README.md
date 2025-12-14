@@ -27,13 +27,20 @@ This project implements a hybrid recommendation system that:
 - Finds similar movies using cosine similarity
 - Enables content-based recommendations
 
-### 3. Deep Learning (Embeddings)
+### 3. Deep Learning (Semantic Embeddings)
 
 - Generates movie embeddings from text features
 - Captures semantic relationships between movies
 - Enables advanced similarity search
 
-### 4. Data Processing
+### 4. Hybrid Recommender (The Final Product)
+
+- **Combines** Semantic, Quality, and Clustering models
+- **Weighted Scoring**: 60% Similarity, 20% Quality, 20% Cluster Affinity
+- **Robust**: Handles missing data and aligns different model indices
+- **Modular**: individual components can be swapped or retrained
+
+### 5. Data Processing
 
 - Unified data loader for all models
 - Feature engineering pipeline
@@ -54,19 +61,26 @@ movie_recommendations/
 │   │   │   ├── optimizer.py   # Hyperparameter optimization
 │   │   │   ├── trainer.py     # Model training
 │   │   │   ├── predictor.py   # Inference
-│   │   │   └── feature_engineering.py
-│   │   ├── unsupervised/      # Clustering & similarity
+│   │   │   └── feature_engineering.py # Feature engineering implementation
+│   │   ├── semantic/      # Semantic Embeddings
+│   │   │   ├── main.py        # Main entry point
+│   │   │   ├── embedder.py # Embedder implementation
+│   │   │   └── text_preprocessor.py # Text preprocessor implementation
+│   │   │   └── recommender.py # Recommender implementation
 │   │   ├── clustering/        # Movie Clustering
 │   │   │   ├── main.py        # Main entry point
 │   │   │   ├── movie_clusterer.py # Clusterer implementation
-│   │   │   └── clustering_movie_recommender.py
-│   │   └── deep_learning/     # Embedding models
+│   │   │   └── clustering_movie_recommender.py # Clustering recommender implementation
+│   │   ├── hybrid/        # Hybrid Recommender
+│   │   │   ├── main.py        # Main entry point
+│   │   │   └── hybrid_recommender.py # Hybrid recommender implementation
 │   └── utils/
 │       └── movie_data_loader.py  # Unified data loader
 ├── notebooks/
 │   ├── 01_data_exploration.ipynb
 │   ├── 02_supervised_model_results.ipynb
 │   └── 03_clustering_model_results.ipynb
+│   └── 04_semantic_model_results.ipynb
 ├── requirements.txt
 └── README.md
 ```
@@ -139,6 +153,40 @@ This will:
 2. Train MovieClusterer (default k=30)
 3. Save model to `src/models/saved_models/movie_clusterer.pkl`
 
+### Train Semantic Model
+
+Run the semantic pipeline (generate embeddings):
+
+```bash
+python src/models/semantic/main.py
+```
+
+This will:
+
+1. Load and preprocess movie descriptions
+2. Generate embeddings using `all-MiniLM-L6-v2`
+3. Save embeddings to `data/processed/semantic_embeddings.parquet`
+
+### Interactive Mode
+
+Test recommendations interactively in the terminal:
+
+```bash
+python src/models/semantic/main.py --interactive
+```
+
+### Run Hybrid Model
+
+```bash
+python src/models/hybrid/main.py "john wick"
+```
+
+This will:
+
+1. Load and prepare data
+2. Generate recommendations using hybrid recommender
+3. Print top 10 recommendations
+
 ### Use Trained Model
 
 ```python
@@ -150,6 +198,27 @@ predictor = QualityPredictor('src/models/saved_models/supervised_model.pkl')
 # Make prediction
 score = predictor.predict_single(movie_features)
 print(f"Predicted quality: {score:.1f}/100")
+
+# Semantic Recommendations
+from models.semantic import SemanticRecommender
+import pandas as pd
+
+# Load data and embeddings
+df = pd.read_parquet('data/processed/semantic_embeddings.parquet')
+embeddings = df.filter(like='embed_').values
+df_clean = df.drop(columns=[c for c in df.columns if c.startswith('embed_')])
+
+recommender = SemanticRecommender(df_clean, embeddings)
+recs = recommender.get_similar_movies('Avatar', top_n=5)
+print(recs[['names', 'similarity_score']])
+
+# Hybrid Recommendations (Best Way)
+from src.models.hybrid.hybrid_recommender import HybridRecommender
+
+recommender = HybridRecommender()
+recs = recommender.recommend(['John Wick'], top_n=10)
+print(recs)
+
 ```
 
 ### Explore Data
@@ -158,6 +227,9 @@ Open and run the Jupyter notebooks:
 
 ```bash
 jupyter notebook notebooks/01_data_exploration.ipynb
+jupyter notebook notebooks/02_supervised_model_results.ipynb
+jupyter notebook notebooks/03_clustering_model_results.ipynb
+jupyter notebook notebooks/04_semantic_model_results.ipynb
 ```
 
 ## Dataset
