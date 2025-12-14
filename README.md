@@ -56,12 +56,17 @@ movie_recommendations/
 │   │   │   ├── predictor.py   # Inference
 │   │   │   └── feature_engineering.py
 │   │   ├── unsupervised/      # Clustering & similarity
+│   │   ├── clustering/        # Movie Clustering
+│   │   │   ├── main.py        # Main entry point
+│   │   │   ├── movie_clusterer.py # Clusterer implementation
+│   │   │   └── clustering_movie_recommender.py
 │   │   └── deep_learning/     # Embedding models
 │   └── utils/
 │       └── movie_data_loader.py  # Unified data loader
 ├── notebooks/
 │   ├── 01_data_exploration.ipynb
-│   └── 02_supervised_model_results.ipynb
+│   ├── 02_supervised_model_results.ipynb
+│   └── 03_clustering_model_results.ipynb
 ├── requirements.txt
 └── README.md
 ```
@@ -119,6 +124,20 @@ This will:
 3. Compare performance
 4. Optimize best model with GridSearchCV
 5. Save final model to `src/models/saved_models/supervised_model.pkl`
+
+### Train Clustering Model
+
+Run the clustering pipeline (train, save):
+
+```bash
+python src/models/clustering/main.py
+```
+
+This will:
+
+1. Load and prepare data
+2. Train MovieClusterer (default k=30)
+3. Save model to `src/models/saved_models/movie_clusterer.pkl`
 
 ### Use Trained Model
 
