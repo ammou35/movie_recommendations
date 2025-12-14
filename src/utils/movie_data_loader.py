@@ -134,6 +134,34 @@ class MovieDataLoader:
         
         return clustering_df
     
+    def get_semantic_data(self, save: bool = False) -> pd.DataFrame:
+        """
+        Get data prepared for semantic embeddings (text-based similarity).
+        
+        Returns data with text descriptions and metadata needed for
+        semantic analysis using sentence transformers.
+        
+        Args:
+            save: If True, save to semantic_data.parquet
+            
+        Returns:
+            DataFrame with text and metadata columns for semantic analysis
+        """
+        df = self.get_clean_data()
+        
+        semantic_cols = ['names', 'overview', 'genre', 'score', 'year', 'revenue']
+        
+        # Filter to only movies with overview text
+        semantic_df = df[semantic_cols].copy()
+        semantic_df = semantic_df.dropna(subset=['overview'])
+        semantic_df = semantic_df[semantic_df['overview'].str.strip() != '']
+        
+        if save:
+            save_path = self.processed_dir / "semantic_data.parquet"
+            semantic_df.to_parquet(save_path, index=False)
+        
+        return semantic_df
+    
     def get_custom_data(self, columns: List[str]) -> pd.DataFrame:
         """
         Get custom subset of columns.
@@ -326,4 +354,8 @@ def load_clustering_data() -> pd.DataFrame:
 def load_embedding_data() -> pd.DataFrame:
     """Quick function to load embedding data."""
     return MovieDataLoader().get_embedding_data()
+
+def load_semantic_data() -> pd.DataFrame:
+    """Quick function to load semantic data."""
+    return MovieDataLoader().get_semantic_data()
 
