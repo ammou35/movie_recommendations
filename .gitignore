@@ -207,3 +207,4 @@ marimo/_lsp/
 __marimo__/
 
 src/models/saved_models/*.pkl
+.DS_Store
