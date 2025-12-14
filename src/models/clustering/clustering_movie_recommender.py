@@ -25,9 +25,15 @@ class ClusteringMovieRecommender:
       - cluster_centroids: DataFrame with columns ['cluster_id', *feature_cols]
     """
 
-    def __init__(self, model_path: str | Path):
-        self.model_path = Path(model_path)
-        self.clusterer = joblib.load(self.model_path)
+    def __init__(self, model_path: str | Path | None = None, model=None):
+        if model is not None:
+            self.clusterer = model
+        elif model_path is not None:
+            self.model_path = Path(model_path)
+            self.clusterer = joblib.load(self.model_path)
+        else:
+            raise ValueError("Must provide either model_path or model instance.")
+
         self.assignations: DataFrame = self.clusterer.cluster_assignation
         self.centroids: DataFrame = self.clusterer.cluster_centroids
 
