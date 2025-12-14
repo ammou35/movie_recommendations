@@ -187,40 +187,6 @@ This will:
 2. Generate recommendations using hybrid recommender
 3. Print top 10 recommendations
 
-### Use Trained Model
-
-```python
-from models.supervised import QualityPredictor
-
-# Load model
-predictor = QualityPredictor('src/models/saved_models/supervised_model.pkl')
-
-# Make prediction
-score = predictor.predict_single(movie_features)
-print(f"Predicted quality: {score:.1f}/100")
-
-# Semantic Recommendations
-from models.semantic import SemanticRecommender
-import pandas as pd
-
-# Load data and embeddings
-df = pd.read_parquet('data/processed/semantic_embeddings.parquet')
-embeddings = df.filter(like='embed_').values
-df_clean = df.drop(columns=[c for c in df.columns if c.startswith('embed_')])
-
-recommender = SemanticRecommender(df_clean, embeddings)
-recs = recommender.get_similar_movies('Avatar', top_n=5)
-print(recs[['names', 'similarity_score']])
-
-# Hybrid Recommendations (Best Way)
-from src.models.hybrid.hybrid_recommender import HybridRecommender
-
-recommender = HybridRecommender()
-recs = recommender.recommend(['John Wick'], top_n=10)
-print(recs)
-
-```
-
 ### Explore Data
 
 Open and run the Jupyter notebooks:
