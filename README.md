@@ -92,7 +92,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 3. Install dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip install -r ./src/requirements.txt
 ```
 
 4. Ensure data is in place:

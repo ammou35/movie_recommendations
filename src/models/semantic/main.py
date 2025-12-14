@@ -43,13 +43,26 @@ def main():
     print(f"  Loaded {len(df):,} movies with descriptions")
     
     print("\n[STEP 2/5] Preprocessing text descriptions...")
-    preprocessor = TextPreprocessor(min_length=10)
+    print("  Including: Title + Genres + Overview")
+    preprocessor = TextPreprocessor(
+        min_length=10,
+        include_title=True,     
+        include_genres=True      
+    )
     df_processed = preprocessor.fit_transform(df)
     
     stats = preprocessor.get_stats()
     print(f"  Processed {stats['total_descriptions']:,} descriptions")
-    print(f"  Average words per description: {stats['avg_word_count']:.1f}")
+    print(f"  Average words per text: {stats['avg_word_count']:.1f}")
     print(f"  Word count range: {stats['min_word_count']:.0f} - {stats['max_word_count']:.0f}")
+    
+    # Show examples 
+    print("\n  Example combined texts (first 3 movies):")
+    for i in range(min(3, len(df_processed))):
+        text = df_processed.loc[i, 'overview_processed']
+        title = df_processed.loc[i, 'names']
+        print(f"    {i+1}. [{title}]")
+        print(f"       {text[:120]}...")
     
     print("\n[STEP 3/5] Generating semantic embeddings...")
     embedder = SemanticEmbedder(model_name='all-MiniLM-L6-v2')
@@ -104,6 +117,8 @@ def main():
     print("="*80)
     print(f"Total movies processed: {len(df_processed):,}")
     print(f"Embedding dimension: {embed_stats['embedding_dim']}")
+    print(f"Features included: Title + Genres + Overview")
+    print(f"Format: Natural language (no labels)")
     print(f"Data saved to: {parquet_path}")
     print("\nYou can now:")
     print("  1. Use the recommendation system in your code")
