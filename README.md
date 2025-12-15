@@ -79,8 +79,9 @@ movie_recommendations/
 ├── notebooks/
 │   ├── 01_data_exploration.ipynb
 │   ├── 02_supervised_model_results.ipynb
-│   └── 03_clustering_model_results.ipynb
-│   └── 04_semantic_model_results.ipynb
+│   ├── 03_clustering_model_results.ipynb
+│   ├── 04_semantic_model_results.ipynb
+│   ├── 05_hybrid_model_visualization.ipynb
 ├── requirements.txt
 └── README.md
 ```
@@ -196,6 +197,7 @@ jupyter notebook notebooks/01_data_exploration.ipynb
 jupyter notebook notebooks/02_supervised_model_results.ipynb
 jupyter notebook notebooks/03_clustering_model_results.ipynb
 jupyter notebook notebooks/04_semantic_model_results.ipynb
+jupyter notebook notebooks/05_hybrid_model_visualization.ipynb
 ```
 
 ## Dataset
